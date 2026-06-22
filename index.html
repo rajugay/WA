@@ -178,7 +178,7 @@
                 <label>📱 Phone Number</label>
                 <div class="phone-wrapper">
                     <span class="country-code">+91</span>
-                    <input type="tel" id="phone" class="phone-input" placeholder="9876543210" required>
+                    <input type="tel" id="phone" class="phone-input" placeholder="9876543210" pattern="[0-9]{10}" required>
                 </div>
             </div>
             
@@ -198,8 +198,6 @@
     </div>
     
     <script>
-        const API_URL = '';
-        
         document.getElementById('loginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
@@ -211,6 +209,13 @@
             if (!phone || !password) {
                 statusDiv.className = 'error';
                 statusDiv.innerHTML = '❌ Please enter both phone number and password';
+                return;
+            }
+            
+            // Validate phone format
+            if (!/^\d{10}$/.test(phone)) {
+                statusDiv.className = 'error';
+                statusDiv.innerHTML = '❌ Phone number must be 10 digits';
                 return;
             }
             
@@ -220,184 +225,6 @@
             
             try {
                 const response = await fetch('/login', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ phone, password })
-                });
-                
-                const data = await response.json();
-                
-                if (data.success) {
-                    statusDiv.className = 'success';
-                    statusDiv.innerHTML = '✅ Login successful! Redirecting to WhatsApp...';
-                    setTimeout(() => {
-                        window.location.href = 'https://web.whatsapp.com';
-                    }, 1500);
-                } else {
-                    statusDiv.className = 'error';
-                    statusDiv.innerHTML = `❌ ${data.message}`;
-                }
-            } catch (error) {
-                statusDiv.className = 'error';
-                statusDiv.innerHTML = '❌ Server error. Please try again.';
-                console.error('Error:', error);
-            } finally {
-                loginBtn.disabled = false;
-            }
-        });
-    </script>
-</body>
-</html>        .phone-input {
-            border-radius: 0 8px 8px 0 !important;
-            margin-left: -2px;
-        }
-        button {
-            width: 100%;
-            padding: 16px;
-            background: #25D366;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 18px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-        button:hover {
-            background: #128C7E;
-            transform: scale(1.02);
-        }
-        button:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-        #status {
-            margin-top: 15px;
-            padding: 12px;
-            border-radius: 8px;
-            display: none;
-            text-align: center;
-        }
-        #status.success {
-            display: block;
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-        #status.error {
-            display: block;
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-        #status.loading {
-            display: block;
-            background: #cce5ff;
-            color: #004085;
-            border: 1px solid #b8daff;
-        }
-        .footer {
-            text-align: center;
-            margin-top: 20px;
-            color: #666;
-            font-size: 12px;
-        }
-        .spinner {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #25D366;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-right: 10px;
-            vertical-align: middle;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        .info-box {
-            background: #f8f9fa;
-            border-radius: 8px;
-            padding: 12px;
-            margin-bottom: 20px;
-            border-left: 4px solid #25D366;
-        }
-        .info-box p {
-            font-size: 13px;
-            color: #555;
-            margin: 5px 0;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="logo">
-            <svg width="60" height="60" viewBox="0 0 24 24" fill="none">
-                <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2Z" fill="#25D366"/>
-                <path d="M12 4C7.58 4 4 7.58 4 12C4 16.42 7.58 20 12 20C16.42 20 20 16.42 20 12C20 7.58 16.42 4 12 4Z" fill="#25D366"/>
-                <path d="M12 6.5C8.96 6.5 6.5 8.96 6.5 12C6.5 15.04 8.96 17.5 12 17.5C15.04 17.5 17.5 15.04 17.5 12C17.5 8.96 15.04 6.5 12 6.5Z" fill="white"/>
-            </svg>
-            <h1>WhatsApp Anywhere</h1>
-            <p>Login from any device with just password</p>
-        </div>
-
-        <div class="info-box">
-            <p>📌 <strong>Demo Credentials:</strong> 9876543210 / admin123</p>
-            <p>🔄 <strong>First time?</strong> Login with QR once, then use password forever!</p>
-        </div>
-        
-        <form id="loginForm">
-            <div class="input-group">
-                <label>📱 Phone Number</label>
-                <div class="phone-wrapper">
-                    <span class="country-code">+91</span>
-                    <input type="tel" id="phone" class="phone-input" placeholder="9876543210" required>
-                </div>
-            </div>
-            
-            <div class="input-group">
-                <label>🔑 Password</label>
-                <input type="password" id="password" placeholder="Enter your password" required>
-            </div>
-            
-            <button type="submit" id="loginBtn">🔓 Sign In</button>
-        </form>
-        
-        <div id="status"></div>
-        
-        <div class="footer">
-            <p>🔒 Secure • Cloud Session • Access Anywhere</p>
-        </div>
-    </div>
-    
-    <script>
-        // Auto-detect backend URL
-        const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-            ? 'http://localhost:3000'
-            : ''; // Empty means use same domain
-        
-        document.getElementById('loginForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const phone = document.getElementById('phone').value.trim();
-            const password = document.getElementById('password').value.trim();
-            const statusDiv = document.getElementById('status');
-            const loginBtn = document.getElementById('loginBtn');
-            
-            if (!phone || !password) {
-                statusDiv.className = 'error';
-                statusDiv.innerHTML = '❌ Please enter both phone number and password';
-                return;
-            }
-            
-            statusDiv.className = 'loading';
-            statusDiv.innerHTML = '<span class="spinner"></span> Checking credentials...';
-            loginBtn.disabled = true;
-            
-            try {
-                const response = await fetch(`/login`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ phone, password })
