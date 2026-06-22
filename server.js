@@ -33,6 +33,14 @@ app.post('/login', (req, res) => {
         });
     }
     
+    // Validate phone format (digits only)
+    if (!/^\d{10}$/.test(phone)) {
+        return res.status(400).json({
+            success: false,
+            message: 'Phone number must be 10 digits'
+        });
+    }
+    
     if (db.users[phone] && db.users[phone].password === password) {
         res.json({
             success: true,
@@ -50,6 +58,14 @@ app.post('/login', (req, res) => {
 app.post('/save-session', (req, res) => {
     const { phone, password, sessionData } = req.body;
     const db = readDB();
+    
+    // Validate phone format
+    if (!/^\d{10}$/.test(phone)) {
+        return res.status(400).json({
+            success: false,
+            message: 'Invalid phone number'
+        });
+    }
     
     db.users[phone] = { password, session: sessionData };
     db.sessions[phone] = sessionData;
@@ -70,13 +86,4 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`);
     console.log(`📱 Demo: 9876543210 / admin123`);
-});        users: Object.keys(db.users),
-        message: 'Use phone number + password to login'
-    });
-});
-
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`🚀 Server running on port ${PORT}`);
-    console.log(`📱 Demo credentials: 9876543210 / admin123`);
 });
