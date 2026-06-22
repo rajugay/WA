@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Session Store - Login Anywhere</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo h1 {
+            color: #333;
+            font-size: 28px;
+            margin-top: 10px;
+        }
+
+        .logo p {
+            color: #666;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            border-bottom: 2px solid #eee;
+        }
+
+        .tab-btn {
+            padding: 10px 20px;
+            border: none;
+            background: none;
+            color: #999;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -2px;
+        }
+
+        .tab-btn.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #eee;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: 0.3s;
+            font-family: inherit;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .message {
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            display: none;
+            font-size: 14px;
+            animation: slideIn 0.3s ease;
+        }
+
+        .message.success {
+            display: block;
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .message.error {
+            display: block;
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .message.loading {
+            display: block;
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .session-info {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .session-info.show {
+            display: block;
+        }
+
+        .session-info p {
+            margin: 8px 0;
+            font-size: 14px;
+            color: #555;
+        }
+
+        .session-info strong {
+            color: #333;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .button-group button {
+            flex: 1;
+            margin-top: 0;
+            background: #6c757d;
+        }
+
+        .button-group button.primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            color: #999;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="logo">
+                <h1>🔐 Session Store</h1>
+                <p>Login Anywhere, Anytime</p>
+            </div>
+
+            <div class="tabs">
+                <button class="tab-btn active" onclick="switchTab('login')">Login</button>
+                <button class="tab-btn" onclick="switchTab('register')">Register</button>
+            </div>
+
+            <!-- Login Tab -->
+            <div id="login" class="tab-content active">
+                <form onsubmit="handleLogin(event)">
+                    <div class="form-group">
+                        <label>Username</label>
+                        <input type="text" id="loginUsername" placeholder="Enter username" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" id="loginPassword" placeholder="Enter password" required>
+                    </div>
+                    <button type="submit" id="loginBtn">Login</button>
+                </form>
+                <div id="loginMessage" class="message"></div>
+
+                <div id="sessionInfo" class="session-info">
+                    <p><strong>✅ Login Successful!</strong></p>
+                    <p>Username: <strong id="sessionUsername"></strong></p>
+                    <p>Session ID: <strong id="sessionId"></strong></p>
+                    <p>Login Time: <strong id="loginTime"></strong></p>
+                    <div class="button-group">
+                        <button onclick="copySessionId()">📋 Copy Session ID</button>
+                        <button class="primary" onclick="handleLogout()">🚪 Logout</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Register Tab -->
+            <div id="register" class="tab-content">
+                <form onsubmit="handleRegister(event)">
+                    <div class="form-group">
+                        <label>Username</label>
+                        <input type="text" id="regUsername" placeholder="Choose username" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" id="regPassword" placeholder="Enter password" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Confirm Password</label>
+                        <input type="password" id="regConfirmPassword" placeholder="Confirm password" required>
+                    </div>
+                    <button type="submit" id="regBtn">Register</button>
+                </form>
+                <div id="regMessage" class="message"></div>
+            </div>
+
+            <div class="footer">
+                <p>💡 Tip: Save your session ID to login from anywhere!</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Check if user has active session on page load
+        window.addEventListener('load', () => {
+            const sessionId = localStorage.getItem('sessionId');
+            if (sessionId) {
+                checkSession(sessionId);
+            }
+        });
+
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            document.getElementById(tab).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            const username = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+            const msgDiv = document.getElementById('loginMessage');
+            const btn = document.getElementById('loginBtn');
+
+            btn.disabled = true;
+            msgDiv.className = 'message loading';
+            msgDiv.innerHTML = '<span class="spinner"></span> Logging in...';
+
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    localStorage.setItem('sessionId', data.sessionId);
+                    localStorage.setItem('username', username);
+                    checkSession(data.sessionId);
+                } else {
+                    msgDiv.className = 'message error';
+                    msgDiv.innerHTML = '❌ ' + data.message;
+                }
+            } catch (error) {
+                msgDiv.className = 'message error';
+                msgDiv.innerHTML = '❌ Server error!';
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
+        async function handleRegister(e) {
+            e.preventDefault();
+            const username = document.getElementById('regUsername').value;
+            const password = document.getElementById('regPassword').value;
+            const confirmPassword = document.getElementById('regConfirmPassword').value;
+            const msgDiv = document.getElementById('regMessage');
+            const btn = document.getElementById('regBtn');
+
+            btn.disabled = true;
+            msgDiv.className = 'message loading';
+            msgDiv.innerHTML = '<span class="spinner"></span> Registering...';
+
+            try {
+                const response = await fetch('/api/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password, confirmPassword })
+                });
+
+                const data = await response.json();
+
+                msgDiv.className = data.success ? 'message success' : 'message error';
+                msgDiv.innerHTML = (data.success ? '✅ ' : '❌ ') + data.message;
+
+                if (data.success) {
+                    setTimeout(() => switchTab('login'), 1500);
+                }
+            } catch (error) {
+                msgDiv.className = 'message error';
+                msgDiv.innerHTML = '❌ Server error!';
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
+        async function checkSession(sessionId) {
+            try {
+                const response = await fetch(`/api/session/${sessionId}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    const sessionInfo = document.getElementById('sessionInfo');
+                    document.getElementById('sessionUsername').textContent = data.session.username;
+                    document.getElementById('sessionId').textContent = sessionId;
+                    document.getElementById('loginTime').textContent = new Date(data.session.loginTime).toLocaleString();
+                    sessionInfo.classList.add('show');
+                    document.getElementById('loginMessage').innerHTML = '';
+                } else {
+                    localStorage.removeItem('sessionId');
+                    document.getElementById('sessionInfo').classList.remove('show');
+                }
+            } catch (error) {
+                console.error('Session check error:', error);
+            }
+        }
+
+        function copySessionId() {
+            const sessionId = document.getElementById('sessionId').textContent;
+            navigator.clipboard.writeText(sessionId);
+            alert('✅ Session ID copied to clipboard!');
+        }
+
+        async function handleLogout() {
+            const sessionId = localStorage.getItem('sessionId');
+            try {
+                await fetch('/api/logout', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ sessionId })
+                });
+            } catch (error) {
+                console.error('Logout error:', error);
+            }
+            localStorage.removeItem('sessionId');
+            localStorage.removeItem('username');
+            document.getElementById('sessionInfo').classList.remove('show');
+            document.getElementById('loginMessage').className = 'message success';
+            document.getElementById('loginMessage').innerHTML = '✅ Logged out successfully!';
+            setTimeout(() => location.reload(), 1500);
+        }
+    </script>
+</body>
+</html>

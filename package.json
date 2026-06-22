@@ -1,14 +1,15 @@
 {
-  "name": "whatsapp-login",
+  "name": "session-store",
   "version": "1.0.0",
-  "description": "WhatsApp login with session",
+  "description": "Simple Session Store - Login Anywhere",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "dev": "node server.js"
   },
   "dependencies": {
     "express": "^4.18.2",
-    "cors": "^2.8.5"
+    "cors": "^2.8.5",
+    "body-parser": "^1.20.2"
   }
 }
-
